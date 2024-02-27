@@ -1,3 +1,24 @@
 {
-  "todos": []
+  "todos": [
+    {
+      "id": "298c1e5e-4227-4748-87f3-8d7b02910feb",
+      "task": "Pay bills",
+      "deleted": true
+    },
+    {
+      "id": "7a10f2f3-a04a-4d27-b570-518f5a244daa",
+      "task": "Task 1",
+      "deleted": true
+    },
+    {
+      "id": "9c2bec33-e327-4870-8bcd-4a397ec1bebc",
+      "task": "Task 2",
+      "deleted": true
+    },
+    {
+      "id": "f1cfa479-784d-411d-a6f8-9f37fbe6f6fe",
+      "task": "Task 3",
+      "deleted": true
+    }
+  ]
 }

@@ -1,62 +1,62 @@
 import React, { useCallback } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+
 import TodoFooter from "../TodoFooter/TodoFooter";
-import "./TodoList.css";
 import ICommonToDoProps from "../AddInput/types";
 import { ReactComponent as DeleteIcon } from "../../assets/icons/delete-icon.svg";
 import { ReactComponent as RestoreIcon } from "../../assets/icons/restore.svg";
 
-const TodoList: React.FC<ICommonToDoProps> = ({ todos, setTodos }) => {
-  const updateTask = useCallback(
-    (id: string) => {
-      let updatedTasks = todos.map((todo) => {
-        if (todo.id === id) {
-          todo.completed = !todo.completed;
-          return todo;
-        } else {
-          return todo;
-        }
-      });
-      setTodos(updatedTasks);
-    },
-    [todos, setTodos]
-  );
+import "./TodoList.css";
+import { deleteOrRestoreTodo } from "../../api";
 
+const TodoList: React.FC<ICommonToDoProps> = ({ todos }) => {
   const calcNumberOfIncompletedTasks = useCallback(() => {
-    return todos.filter((todo) => !todo.completed).length;
+    return todos.filter((todo) => !todo.deleted).length;
   }, [todos]);
+
+  const queryClient = useQueryClient();
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: async (id: string) => {
+      return await deleteOrRestoreTodo(id);
+    },
+  });
+
+  const handleAction = useCallback(
+    (id: string) => {
+      if (isPending) {
+        return;
+      }
+      mutate(id, {
+        onSuccess: (res) => {
+          console.log("response ", res);
+          queryClient.invalidateQueries({ queryKey: ["todos"] });
+        },
+        onError: (err) => {
+          console.log("error", err);
+        },
+      });
+    },
+    [mutate, isPending, queryClient]
+  );
 
   return (
     <div className="todolist-container">
       <ul className="todos-container">
         {todos.map((todo) => (
           <li
-            className={`todo-item ${
-              todo.completed ? "todo-item-completed" : ""
-            }`}
+            className={`todo-item ${todo.deleted ? "todo-item-completed" : ""}`}
             key={todo.id}
             id={todo.id}
           >
             <div>{todo.task}</div>
-            {/* {todo.completed ? (
-              <button
-                onClick={() => updateTask(todo.id)}
-                aria-label={`restore-todo-${todo.id}`}
-              >
-                <RestoreIcon width={20} height={20} />
-              </button>
-            ) : (
-              <button
-                onClick={() => updateTask(todo.id)}
-                aria-label={`delete-todo-${todo.id}`}
-              >
-                <DeleteIcon width={20} height={20} />
-              </button>
-            )} */}
-            {todo.completed ? (
+            {todo.deleted ? (
               <RestoreIcon
                 width={20}
                 height={20}
-                onClick={() => updateTask(todo.id)}
+                onClick={() => {
+                  handleAction(todo.id);
+                }}
                 aria-label={`restore-todo-${todo.id}`}
                 role="button"
               />
@@ -64,7 +64,9 @@ const TodoList: React.FC<ICommonToDoProps> = ({ todos, setTodos }) => {
               <DeleteIcon
                 width={20}
                 height={20}
-                onClick={() => updateTask(todo.id)}
+                onClick={() => {
+                  handleAction(todo.id);
+                }}
                 aria-label={`delete-todo-${todo.id}`}
                 role="button"
               />

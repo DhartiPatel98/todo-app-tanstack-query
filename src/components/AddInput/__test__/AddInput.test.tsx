@@ -38,7 +38,7 @@ const mockedTaskArray: Array<IToDo> = [
   {
     id: "1234",
     task: "Task 1",
-    completed: false,
+    deleted: false,
   },
 ];
 
@@ -49,14 +49,14 @@ describe("Add Input", () => {
 
   // Test #1: should render input element - using placeholder
   test("should render input element", () => {
-    render(<AddInput todos={[]} setTodos={mockedSetTodoFn} />);
+    render(<AddInput todos={[]} />);
     const inputElement = screen.getByPlaceholderText(/Add a new task here.../i);
     expect(inputElement).toBeInTheDocument();
   });
 
   // Test #2: user should be able to enter value - using placeholder
   test("should be able to enter value", () => {
-    render(<AddInput todos={[]} setTodos={mockedSetTodoFn} />);
+    render(<AddInput todos={[]} />);
     const value = "Task 1";
     const inputElement = changeInputValue(value);
     expect(inputElement.value).toBe(value);
@@ -64,7 +64,7 @@ describe("Add Input", () => {
 
   // Test #4: submit function should be disabled when there is no input - using placeholder
   test("should disable the button when no value is present", () => {
-    render(<AddInput todos={[]} setTodos={mockedSetTodoFn} />);
+    render(<AddInput todos={[]} />);
     changeInputValue("");
     const buttonElement = addTodo();
     expect(buttonElement.disabled).toBe(true);
@@ -72,7 +72,7 @@ describe("Add Input", () => {
 
   // Test #4: submit function should be called when button is clicked - using placeholder
   test("should be called only once", () => {
-    render(<AddInput todos={[]} setTodos={mockedSetTodoFn} />);
+    render(<AddInput todos={[]} />);
     const value = "Task 1";
     changeInputValue(value);
 
@@ -83,9 +83,7 @@ describe("Add Input", () => {
 
   // Test #5: user should be able to submit a new task - using custom query
   test("should have empty input when add button is cliked", () => {
-    const { container } = render(
-      <AddInput todos={[]} setTodos={mockedSetTodoFn} />
-    );
+    const { container } = render(<AddInput todos={[]} />);
 
     const value = "Task 1";
     const inputElement = changeInputValue(value);
@@ -98,7 +96,7 @@ describe("Add Input", () => {
 
   // Test #6: there should be an error message when duplicate task is added
   test("should display an error message for duplicate task", () => {
-    render(<AddInput todos={mockedTaskArray} setTodos={mockedSetTodoFn} />);
+    render(<AddInput todos={mockedTaskArray} />);
     const value = "Task 1";
     // Add "Task 1"
     changeInputValue(value);
@@ -110,7 +108,7 @@ describe("Add Input", () => {
 
   // Test #7: The error message should be cleared when the input is cleared
   test("should clear the error message when input value is cleared", () => {
-    render(<AddInput todos={mockedTaskArray} setTodos={mockedSetTodoFn} />);
+    render(<AddInput todos={mockedTaskArray} />);
 
     changeInputValue("Task 1");
     addTodo();

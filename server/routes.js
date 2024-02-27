@@ -1,14 +1,12 @@
 const { Router } = require("express");
-const { getTodos } = require("./service");
+const { getTodos, addTodo, deleteOrRestoreTodo } = require("./service");
 
 const router = Router();
 
 router.get("/todos", getTodos);
 
-// router.post("/add-todo", addTodo);
+router.post("/todo", addTodo);
 
-// router.put("/edit-todo/:id", updateTodo);
-
-// router.delete("/delete-todo/:id", deleteTodo);
+router.patch("/todo/:id", deleteOrRestoreTodo);
 
 module.exports = router;

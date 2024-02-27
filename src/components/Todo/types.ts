@@ -1,7 +1,7 @@
 interface IToDo {
     id: string,
     task: string,
-    completed: boolean,
+    deleted: boolean,
 }
 
 export default IToDo;
