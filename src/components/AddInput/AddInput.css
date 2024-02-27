@@ -1,0 +1,47 @@
+.input-container {
+  background-color: white;
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+  border-radius: 0.25rem;
+  padding: 1rem;
+  box-shadow: 0.1rem 0.1rem 1rem rgba(0, 0, 0, 0.329);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.input-field {
+  width: 90%;
+}
+
+.input {
+  border: none;
+  width: 100%;
+}
+
+.input:focus {
+  outline: none;
+}
+
+.add-btn {
+  border: none;
+  padding: 0.75rem 2rem;
+  border-radius: 0.2rem;
+  background-color: rgb(53, 201, 157);
+  color: white;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.add-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.error {
+  color: red;
+  font-size: 14px;
+  border-radius: 0.25rem;
+  padding: 1rem;
+  box-shadow: 0.1rem 0.1rem 1rem rgba(0, 0, 0, 0.329);
+}
