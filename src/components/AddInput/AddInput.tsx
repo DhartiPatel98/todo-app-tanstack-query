@@ -20,7 +20,7 @@ const AddInput: React.FC<AddToDo> = ({ todos }) => {
   });
 
   console.log(
-    `isIdle: ${isIdle}, isPending: ${isPending}, isSuccess: ${isSuccess}, isError: ${isError}`
+    `Add Todo Mutation states: isIdle: ${isIdle}, isPending: ${isPending}, isSuccess: ${isSuccess}, isError: ${isError}`
   );
 
   const saveTodo = useCallback(() => {

@@ -33,6 +33,15 @@ const addTodo = async (req, res) => {
 };
 
 const deleteOrRestoreTodo = async (req, res) => {
+  setTimeout(() => {
+    deleteOrRestoreTodoFn(req, res);
+    // res.status(500).json({
+    //   message: "Todo not found",
+    // });
+  }, 2000);
+};
+
+const deleteOrRestoreTodoFn = async (req, res) => {
   try {
     const todoList = await axios.get(`/todos`);
 

@@ -7,6 +7,10 @@ router.get("/todos", getTodos);
 
 router.post("/todo", addTodo);
 
-router.patch("/todo/:id", deleteOrRestoreTodo);
+router.patch("/todo/:id", (req, res) => {
+  setTimeout(() => {
+    deleteOrRestoreTodo(req, res);
+  }, 3000);
+});
 
 module.exports = router;

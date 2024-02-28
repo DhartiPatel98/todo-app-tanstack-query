@@ -8,6 +8,11 @@ import { ReactComponent as RestoreIcon } from "../../assets/icons/restore.svg";
 
 import "./TodoList.css";
 import { deleteOrRestoreTodo } from "../../api";
+import IToDo from "../Todo/types";
+
+interface TodoQueryData {
+  todos: Array<IToDo>;
+}
 
 const TodoList: React.FC<ICommonToDoProps> = ({ todos }) => {
   const calcNumberOfIncompletedTasks = useCallback(() => {
@@ -16,25 +21,91 @@ const TodoList: React.FC<ICommonToDoProps> = ({ todos }) => {
 
   const queryClient = useQueryClient();
 
+  // ------------------ Normal mutation example --------------
+  // const { mutate, isPending } = useMutation({
+  //   mutationFn: async (todo: IToDo) => {
+  //     return await deleteOrRestoreTodo(todo.id);
+  //   },
+  // });
+
+  // const handleAction = useCallback(
+  //   (todo: IToDo) => {
+  //     if (isPending) {
+  //       return;
+  //     }
+  //     mutate(todo, {
+  //       onSuccess: (res) => {
+  //         console.log("response ", res);
+  //         queryClient.invalidateQueries({ queryKey: ["todos"] });
+  //       },
+  //       // If the mutation fails,
+  //       onError: (err) => {
+  //         console.log("error", err);
+  //       },
+  //     });
+  //   },
+  //   [mutate, isPending, queryClient]
+  // );
+
+  // ------------ Optimistic updates ------------
   const { mutate, isPending } = useMutation({
-    mutationFn: async (id: string) => {
-      return await deleteOrRestoreTodo(id);
+    mutationFn: async (todo: IToDo) => {
+      return await deleteOrRestoreTodo(todo.id);
+    },
+    onMutate: async (todo) => {
+      // Cancel any outgoing refetches
+      // (so they don't overwrite our optimistic update)
+      await queryClient.cancelQueries({ queryKey: ["todos"] });
+
+      // Snapshot the previous value
+      const previousTodos = queryClient.getQueryData([
+        "todos",
+      ]) as TodoQueryData;
+      console.log("previous todo ", previousTodos);
+
+      // Optimistically update to the new value
+      const index = previousTodos?.todos?.findIndex(
+        (item) => item.id === todo.id
+      );
+      console.log("index ", index, " ", previousTodos);
+      if (index !== -1 && previousTodos?.todos) {
+        const newTodoList = [...(previousTodos?.todos || [])];
+        newTodoList[index] = {
+          ...todo,
+          deleted: !todo.deleted,
+        };
+        console.log("*** optimistic todo: ", newTodoList);
+        queryClient.setQueryData(["todos"], {
+          ...previousTodos,
+          todos: newTodoList,
+        });
+
+        // Return a context object with the snapshotted value
+        return { previousTodos };
+      }
     },
   });
 
   const handleAction = useCallback(
-    (id: string) => {
+    (todo: IToDo) => {
       if (isPending) {
         return;
       }
-      mutate(id, {
+      mutate(todo, {
         onSuccess: (res) => {
           console.log("response ", res);
           queryClient.invalidateQueries({ queryKey: ["todos"] });
         },
-        onError: (err) => {
-          console.log("error", err);
+        // If the mutation fails,
+        // use the context returned from onMutate to roll back
+        onError: (err, variables, context) => {
+          console.log("error", err, " previous todo: ", context?.previousTodos);
+          queryClient.setQueryData(["todos"], context?.previousTodos || []);
         },
+        // Always refetch after error or success:
+        // onSettled: () => {
+        //   queryClient.invalidateQueries({ queryKey: ["todos"] });
+        // },
       });
     },
     [mutate, isPending, queryClient]
@@ -55,7 +126,7 @@ const TodoList: React.FC<ICommonToDoProps> = ({ todos }) => {
                 width={20}
                 height={20}
                 onClick={() => {
-                  handleAction(todo.id);
+                  handleAction(todo);
                 }}
                 aria-label={`restore-todo-${todo.id}`}
                 role="button"
@@ -65,7 +136,7 @@ const TodoList: React.FC<ICommonToDoProps> = ({ todos }) => {
                 width={20}
                 height={20}
                 onClick={() => {
-                  handleAction(todo.id);
+                  handleAction(todo);
                 }}
                 aria-label={`delete-todo-${todo.id}`}
                 role="button"

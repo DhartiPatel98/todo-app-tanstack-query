@@ -12,6 +12,7 @@ const Todo: React.FC = () => {
     queryKey: ["todos"],
     queryFn: async () => {
       const res = await fetchTodoList();
+      console.log(`Query response: ${JSON.stringify(res.data)}`);
       return res.data;
     },
   });
